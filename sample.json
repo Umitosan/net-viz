@@ -1,0 +1,56 @@
+{
+	"netPopulation": {
+		"netsPerPopulation": "...",
+		"#text": [
+			" //unsigned short",
+			" //unsigned short",
+			" //unsigned short",
+			" //unsigned short"
+		],
+		"cellsPerNet": "...",
+		"inputCellsPerNet": "...",
+		"outputCellsPerNet": "...",
+		"cell_structures": {
+			"s_0": "...",
+			"s_1": "...",
+			"#text": "..."
+		},
+		"nets": {
+			"n_0": {
+				"cells": {
+					"c_0": {
+						"internalCoeff": "...",
+						"#text": [
+							" //double",
+							" //double"
+						],
+						"broadcastCoeff": "...",
+						"postLinks": {
+							"p_0": {
+								"postCell": "...",
+								"#text": [
+									" //unsigned short",
+									" //double"
+								],
+								"linkCoeff": "..."
+							},
+							"p_1": {
+								"postCell": "...",
+								"#text": [
+									" //unsigned short",
+									" //double"
+								],
+								"linkCoeff": "..."
+							},
+							"#text": "..."
+						}
+					},
+					"c_1": "...",
+					"#text": "..."
+				}
+			},
+			"n_1": "...",
+			"#text": "..."
+		}
+	}
+}

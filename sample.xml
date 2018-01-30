@@ -1,0 +1,49 @@
+<?xml version = "1.0"?>
+<netPopulation>
+
+     <netsPerPopulation>...</netsPerPopulation> //unsigned short
+     <cellsPerNet>...</cellsPerNet> //unsigned short
+     <inputCellsPerNet>...</inputCellsPerNet> //unsigned short
+     <outputCellsPerNet>...</outputCellsPerNet> //unsigned short
+
+     <cell_structures>
+         <s_0>
+             ...
+         </s_0>
+         <s_1>
+             ...
+         </s_1>
+         ...
+     </cell_structures>
+
+     <nets>
+         <n_0>
+             <cells>
+                 <c_0>
+                     <internalCoeff>...</internalCoeff> //double
+                     <broadcastCoeff>...</broadcastCoeff> //double
+                     <postLinks>
+                         <p_0>
+                             <postCell>...</postCell> //unsigned short
+                             <linkCoeff>...</linkCoeff> //double
+                         </p_0>
+                         <p_1>
+                         <postCell>...</postCell> //unsigned short
+                         <linkCoeff>...</linkCoeff> //double
+                         </p_1>
+                         ...
+                     </postLinks>
+                 </c_0>
+                 <c_1>
+                     ...
+                 </c_1>
+                 ...
+             </cells>
+         </n_0>
+         <n_1>
+             ...
+         </n_1>
+         ...
+     </nets>
+
+ </netPopulation>

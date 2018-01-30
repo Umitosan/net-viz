@@ -1,0 +1,77 @@
+
+body {
+  background-color: lightblue;
+}
+
+h2 {
+  text-align: center;
+}
+
+.canvas-container {
+  width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  border-color: rgb(137, 183, 36);
+  border-width: 2px;
+  border-style: solid;
+}
+
+#canvas {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.animTitle {
+  text-align: center;
+}
+
+.input-group {
+  padding: 8px;
+  width: 196px;
+  margin-left: auto;
+  margin-right: auto;
+  /* outline-color: red;
+  outline-style: solid;
+  outline-width: 1px; */
+}
+
+.input {
+  font-size: 21px;
+  display: inline-flex;
+  height: 30px;
+  width: 60px;
+  border-radius: 3px;
+  border-style: solid;
+  border-color: green;
+  border-width: 1px;
+  cursor: pointer
+}
+
+.txt {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+#start {
+}
+#start:hover {
+  background-color: rgb(137, 183, 36);
+}
+
+#pause {
+}
+#pause:hover {
+  background-color: rgb(137, 183, 36);
+}
+
+#reset {
+}
+#reset:hover {
+  background-color: rgb(137, 183, 36);
+}
