@@ -1,5 +1,7 @@
 ## net viz
 
+A visualization tool made with canvas to explore neural net data.  This data will be obtained through an imported XML or JSON file.
+
 ## Specification
 | Behavior |  Input   |  Output  |
 |----------|:--------:|:--------:|
@@ -8,6 +10,8 @@
 |Cells show links to other cells||a uni-directional arrow is drawn between 2 cells|
 |Cell links vary in width based on intensity|||
 
-## notes on structure
+## Authors
+
+* Dominic Brown
 
 ## license

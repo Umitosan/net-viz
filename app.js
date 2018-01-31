@@ -87,16 +87,22 @@ var myColors = {
 //   }
 // } // ArcGroup
 
-function TxtBox(x,y,font,color) {
+function TxtBox(x,y,fontSize,color,str) {
   this.x = x;
   this.y = y;
-  this.font = font;
+  this.fontSize = fontSize;
+  this.font = fontSize.toString() + "px Ariel";
   this.color = color;
+  this.str = str;
 
   this.draw = function() {
+    // white background
     ctx.font = this.font;
+    ctx.fillStyle = 'white';
+    ctx.fillText(this.str,this.x,this.y);
+    // black number
     ctx.fillStyle = this.color;
-    ctx.fillText("Sorted!",this.x,this.y);
+    ctx.fillText(this.str,this.x,this.y);
   }
 }
 
@@ -104,13 +110,13 @@ function Arrow(cell1, cell2) {
   this.x1 = cell1.x;
   this.y1 = cell1.y;
   this.x2 = cell2.x;
-  this.x2 =  cell2.y;
+  this.y2 =  cell2.y;
   this.color = cell1.color;
 
   this.draw = function() {
     ctx.beginPath();
-    ctx.fillStyle = this.color;
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = this.color;
+    ctx.lineWidth = 2;
     ctx.moveTo(this.x1,this.y1);
     ctx.lineTo(this.x2,this.y2);
     ctx.stroke();
@@ -124,17 +130,19 @@ function Cell(x,y,r,color) {
   this.sAngle = 0;
   this.eAngle = 2 * Math.PI;
   this.color = color;
+  this.txt = undefined;
   this.arrows = [];
   // arrow width = cell.internalCoeff * cell.linkCoeff
   // this.internalCoeff = 0;  single number for strength of outgoing signal
 
-  this.init = function() {
-    for (var i = 0; i <= getRandomIntInclusive(0,3); i++) {
-      var pair = myNet.getRandPair();
-      // console.log('pair = ', pair);
-      this.arrows.push(new Arrow(pair[0], pair[1]));
-    }
-    console.log('this.arrows = ', this.arrows);
+  this.init = function(index) {
+    // TxtBox(x,y,font,color)
+    this.txt = new TxtBox(this.x-4,this.y-this.r-4,14,myColors.black,index.toString());
+    // just make one relationship
+    var pair = myNet.getRandPair();
+    // console.log('pair = ', pair);
+    this.arrows.push(new Arrow(pair[0], pair[1]));
+    // console.log('this.arrows = ', this.arrows);
   }
 
   this.draw = function() {
@@ -151,9 +159,14 @@ function Cell(x,y,r,color) {
     // ctx.fill();
     ctx.stroke();
     // draw all arrows
-    for (var i = 0; i < this.arrows.length; i++) {
-      this.arrows[i].draw();
-    }
+    this.arrows.forEach(function(a) {
+      // console.log('arrow = ', a);
+      a.draw();
+    });
+    this.txt.draw();
+    // for (var i = 0; i < this.arrows.length; i++) {
+    //   this.arrows[i].draw();
+    // }
   } // draw
 
   this.update = function() {
@@ -180,16 +193,18 @@ function Net(quantity) {
     // init all new cells
     for (var j = 0; j < this.cells.length; j++) {
       // console.log('this.cells[j] = ', this.cells[j]);
-      this.cells[j].init();
+      this.cells[j].init(j);
     }
-  }
+  } // init
 
+  // returns random unique pair of cells to draw an arrow between
   this.getRandPair = function() {
-   var index1, index2;
+    var index1,
+        index2;
     while (true) {
       index1 = getRandomIntInclusive(0,this.cells.length-1);
       index2 = getRandomIntInclusive(0,this.cells.length-1);
-      if (index1 === index2) {
+      if (index1 !== index2) {
         break;
       }
     }
@@ -201,52 +216,14 @@ function Net(quantity) {
     for (var i = 0; i < this.cells.length; i++) {
       this.cells[i].draw();
     }
-  }
-
+  } // draw
   this.update = function() {
     // for (var i = 0; i < this.cells.length; i++) {
     //   this.cells[i].update();
     // }
-  }
+  } // update
 } // ArcGroup
 
-///////////////////
-// HELPER FUNCTIONS
-///////////////////
-function getRadianAngle(degreeValue) {
-  return degreeValue * Math.PI / 180;
-}
-
-function randSign() {
-  var num = getRandomIntInclusive(1,2)
-  if (num === 1) {
-    return 1
-  } else {
-    return -1;
-  }
-}
-
-function randColor(type) {
-  // more muted colors example
-  // return ( "#" + Math.round((getRandomIntInclusive(0,99999999) + 0x77000000)).toString(16) );
-  // full spectum
-  if (type === 'hex') {
-    return ( "#" + Math.round((getRandomIntInclusive(0,0xffffff))).toString(16) );
-  }
-  if (type === 'rgba') {
-    return ( 'rgba('+ getRandomIntInclusive(0,255) +','+ getRandomIntInclusive(0,255) +','+ getRandomIntInclusive(0,255) +','+1+')' );
-  }
-}
-
-function getRandomIntInclusive(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive
-}
-
-function clearCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
 
 // prepare the loop to start based on current state
 function aLoopInit(fps) {
@@ -288,6 +265,44 @@ function aLoop(newtime) {
   // myArcGroup.draw();
   myNet.draw();
   myReq = requestAnimationFrame(aLoop);
+}
+
+///////////////////
+// HELPER FUNCTIONS
+///////////////////
+function getRadianAngle(degreeValue) {
+  return degreeValue * Math.PI / 180;
+}
+
+function randSign() {
+  var num = getRandomIntInclusive(1,2)
+  if (num === 1) {
+    return 1
+  } else {
+    return -1;
+  }
+}
+
+function randColor(type) {
+  // more muted colors example
+  // return ( "#" + Math.round((getRandomIntInclusive(0,99999999) + 0x77000000)).toString(16) );
+  // full spectum
+  if (type === 'hex') {
+    return ( "#" + Math.round((getRandomIntInclusive(0,0xffffff))).toString(16) );
+  }
+  if (type === 'rgba') {
+    return ( 'rgba('+ getRandomIntInclusive(0,255) +','+ getRandomIntInclusive(0,255) +','+ getRandomIntInclusive(0,255) +','+1+')' );
+  }
+}
+
+function getRandomIntInclusive(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive
+}
+
+function clearCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 
