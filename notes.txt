@@ -1,0 +1,89 @@
+
+
+Goals
+  visualize a single net's cells
+  (later) visualize a net population
+  1. each cell should be easily identified by its index number
+  2. each cell's links with other cells should be identified by directional arrows
+    2a. possibly with one color for an exitatory relationship and another color for an inhibitory relationship.
+    2b. It would also be nice if the width or color intensity or some other visual property of the arrow in the relationship could be modified based on the strength of <broadcastCoeff> * <linkCoeff>.
+  3. Each link between cells is uni-directional corresponding to the signal from sending cell to receiving cell.
+    3a. when 2 cells both send signal to each other, show this with 2 separate arrows going back and forth, each with separate modifiers
+  4. The cells which receive external input are the first n cells in the net's array where n is <inputCellsPerNet> and the cells which send external output are the next n cells in the array immediately following the input cell group where n is <outputCellsPerNet>.
+    4a. All remaining cells in the array are simply involved in receiving and sending internal stimulus, but receive and send no external input or output
+    4b. these three distinct groups of cells should be identified through color, border, or other differences
+
+
+<netPopulation>
+  group of nets who will compete against one another through evolutionary cycles
+  nets complete over each cycle
+
+net
+  array of cells
+  has <cellsPerNet>
+  not discreet object
+  nets are derived from a combination of information from multiple parts objects within the <netPopulation>
+  <inputCellsPerNet> All nets in a population also have the same number of cells which receive external input
+  <outputCellsPerNet> send external output
+
+<cells>
+
+
+<cell_structures>
+  cell control properties
+  stimulus moving through a net
+
+<internalCoeff>
+  how easily the cell is activated
+  A value of 1.0 is neutral. Any higher value makes the cell more easily activated, and any lower value makes it more difficult to activate.
+
+
+<broadcastCoeff>
+  modifies the volume of any stimulus this cell sends any other cell as well as whether that stimulus is exitatory (positive value) or inhibitory (negative value)
+
+<postLinks>
+  list of all the other net cells to which this cell sends stimulus when activated
+
+<postCell>
+  index number (in net context) of the receiving cell
+
+<linkCoeff>
+  stimulus modifier specific only to this link and can be any value making it either exitatory (positive) or inhibitory (negative).
+  The total stimulus that one cell receives from another then is primarily modified by the sending cell's <broadcastCoeff> multiplied by the <linkCoeff> corresponding to the <postLink> member in which <postCell> is the index (in net context) of the receiving cell.
+  It's actually a bit more complicated than that but the complication has to do with information stored in <cell_structures> which I don't want to incorporate in the visualization yet.
+
+
+
+
+
+<netPopulation>
+  <netsPerPopulation>...</netsPerPopulation> //unsigned short
+  <cellsPerNet>...</cellsPerNet> //unsigned short
+  <inputCellsPerNet>...</inputCellsPerNet> //unsigned short
+  <outputCellsPerNet>...</outputCellsPerNet> //unsigned short
+  <cell_structures>
+    <s_0>
+      ...
+    </s_0>
+  </cell_structures>
+  <nets>
+    <n_0>
+      <cells>
+        <c_0>
+          <internalCoeff>...</internalCoeff> //double
+          <broadcastCoeff>...</broadcastCoeff> //double
+          <postLinks>
+          <p_0>
+            <postCell>...</postCell> //unsigned short
+            <linkCoeff>...</linkCoeff> //double
+          </p_0>
+          <p_1>
+            <postCell>...</postCell> //unsigned short
+            <linkCoeff>...</linkCoeff> //double
+          </p_1>
+            </postLinks>
+        </c_0>
+      </cells>
+    </n_0>
+  </nets>
+</netPopulation>

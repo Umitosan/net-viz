@@ -1,10 +1,11 @@
 
 
-var canvas = $('#canvas')[0], // canvas must be defined here for backend functions
-    fps, fpsInterval, startTime, now, then, elapsed,
+var canvas = undefined,
     ctx = undefined, // canvas.getContext('2d')
+    fps, fpsInterval, startTime, now, then, elapsed,
     myReq = undefined, // myReq = requestAnimationFrame()
-    myArcGroup = undefined;
+    myArcGroup = undefined,
+    myNet = undefined,
     aLoopPause = true;
 
 // see this for html names colors
@@ -24,6 +25,68 @@ var myColors = {
   greenAlpha: 'rgba(0,128,0,0.2)',
 }
 
+// function Arc(x,y,r,color) {
+//   this.x = x;
+//   this.y = y;
+//   this.r = r;
+//   this.sAngle = 0;
+//   this.eAngle = 2 * Math.PI;
+//   this.xVel = getRandomIntInclusive(1,8)*randSign(); // rand speed and direction
+//   this.yVel = getRandomIntInclusive(1,8)*randSign(); // rand speed and direction
+//   this.color = color;
+//
+//   this.draw = function() {
+//     // context.arc(x,y,r,sAngle,eAngle,counterclockwise);
+//     // sAngle	The starting angle, in radians (0 is at the 3 o'clock position of the arc's circle)
+//     // eAngle	The ending angle, in radians
+//     // counterclockwise	Optional. Specifies whether the drawing should be counterclockwise or clockwise. False is default...
+//     //    and indicates clockwise, while true indicates counter-clockwise.
+//     ctx.beginPath();
+//     ctx.fillStyle = this.color;
+//     ctx.strokeStyle = this.color;
+//     ctx.lineWidth = 1;
+//     ctx.arc(this.x,this.y,this.r,this.sAngle,this.eAngle);
+//     ctx.fill();
+//     ctx.stroke();
+//   } // draw
+//
+//   this.update = function() {
+//     if (  ((this.x + this.xVel + this.r) > canvas.width) || ((this.x + this.xVel - this.r) < 0)  ) {
+//       this.xVel *= -1;
+//     }
+//     if (  ((this.y + this.yVel + this.r) > canvas.height) || ((this.y + this.yVel - this.r) < 0)  ) {
+//       this.yVel *= -1;
+//     }
+//     this.x += this.xVel;
+//     this.y += this.yVel;
+//   } // update
+// } // Arc
+
+// function ArcGroup(quantity) {
+//   this.arcs = [];
+//
+//   this.init = function() {
+//     for (var i = 0; i < quantity; i++) {
+//       var randRad = getRandomIntInclusive(4, 26);
+//       //  arc(x,y,radius,startAngle,endAngle);
+//       this.arcs.push( new Arc(getRandomIntInclusive(randRad, canvas.width-randRad), getRandomIntInclusive(randRad, canvas.height-randRad), randRad, randColor('hex')) );
+//     }
+//   }
+//
+//   this.draw = function() {
+//     for (var i = 0; i < this.arcs.length; i++) {
+//       // this.arcs[i].drawErase();
+//       this.arcs[i].draw();
+//     }
+//   }
+//
+//   this.update = function() {
+//     for (var i = 0; i < this.arcs.length; i++) {
+//       this.arcs[i].update();
+//     }
+//   }
+// } // ArcGroup
+
 function TxtBox(x,y,font,color) {
   this.x = x;
   this.y = y;
@@ -37,65 +100,67 @@ function TxtBox(x,y,font,color) {
   }
 }
 
-function Arc(x,y,r,color) {
+function Arrow() {
+  this.x1 = 0;
+  this.y1 = 0;
+  this.x2 = 0;
+  this.x2 = 0;
+
+  this.draw = function() {
+
+  }
+}
+
+function Cell(x,y,r,color) {
   this.x = x;
   this.y = y;
   this.r = r;
   this.sAngle = 0;
   this.eAngle = 2 * Math.PI;
-  this.xVel = getRandomIntInclusive(1,8)*randSign(); // rand speed and direction
-  this.yVel = getRandomIntInclusive(1,8)*randSign(); // rand speed and direction
   this.color = color;
 
   this.draw = function() {
     // context.arc(x,y,r,sAngle,eAngle,counterclockwise);
     // sAngle	The starting angle, in radians (0 is at the 3 o'clock position of the arc's circle)
     // eAngle	The ending angle, in radians
-    // counterclockwise	Optional. Specifies whether the drawing should be counterclockwise or clockwise. False is default, and indicates clockwise, while true indicates counter-clockwise.
-
+    // counterclockwise	Optional. Specifies whether the drawing should be counterclockwise or clockwise. False is default...
+    //    and indicates clockwise, while true indicates counter-clockwise.
     ctx.beginPath();
     ctx.fillStyle = this.color;
     ctx.strokeStyle = this.color;
     ctx.lineWidth = 1;
-    ctx.arc(this.x,this.y,this.r,this.sAngle,this.eAngle);
+    ctx.arc(this.x,this.y,this.r,this.sAngle,this.eAngle);  // ctx.arc(x,y,radius,startAngle,endAngle)
     ctx.fill();
     ctx.stroke();
   } // draw
 
-  this.update = function() {
-    if (  ((this.x + this.xVel + this.r) > canvas.width) || ((this.x + this.xVel - this.r) < 0)  ) {
-      this.xVel *= -1;
-    }
-    if (  ((this.y + this.yVel + this.r) > canvas.height) || ((this.y + this.yVel - this.r) < 0)  ) {
-      this.yVel *= -1;
-    }
-    this.x += this.xVel;
-    this.y += this.yVel;
-  } // update
-} // Arc
+} // Cell
 
-function ArcGroup(quantity) {
-  this.arcs = [];
+function Net(quantity) {
+  this.cells = [];
 
   this.init = function() {
     for (var i = 0; i < quantity; i++) {
       var randRad = getRandomIntInclusive(4, 26);
-      //  arc(x,y,radius,startAngle,endAngle);
-      this.arcs.push( new Arc(getRandomIntInclusive(randRad, canvas.width-randRad), getRandomIntInclusive(randRad, canvas.height-randRad), randRad, randColor('hex')) );
+      //  Cell(x,y,r,color)
+      this.cells.push( new Cell(getRandomIntInclusive(randRad, canvas.width-randRad), // center x
+                                getRandomIntInclusive(randRad, canvas.height-randRad), // center y
+                                randRad, // radius
+                                randColor('hex')) // color
+                                );
     }
   }
 
   this.draw = function() {
-    for (var i = 0; i < this.arcs.length; i++) {
-      // this.arcs[i].drawErase();
-      this.arcs[i].draw();
+    for (var i = 0; i < this.cells.length; i++) {
+      this.cells[i].draw();
     }
   }
 
   this.update = function() {
-    for (var i = 0; i < this.arcs.length; i++) {
-      this.arcs[i].update();
-    }
+    // for (var i = 0; i < this.cells.length; i++) {
+    //   this.cells[i].update();
+    // }
   }
 } // ArcGroup
 
@@ -145,7 +210,7 @@ function aLoopInit(fps) {
   console.log(startTime);
   aLoopPause = false;
   if (myReq !== undefined) {
-    cancelAnimationFrame(myReq1);
+    cancelAnimationFrame(myReq);
   }
   myReq = requestAnimationFrame(aLoop);
 }
@@ -172,9 +237,10 @@ function aLoop(newtime) {
       then = now - (elapsed % fpsInterval);
 
       clearCanvas();
-      myArcGroup.update();
+      // myArcGroup.update();
   }
-  myArcGroup.draw();
+  // myArcGroup.draw();
+  myNet.draw();
   myReq = requestAnimationFrame(aLoop);
 }
 
@@ -189,8 +255,10 @@ $(document).ready(function() {
 
   $('#start').click(function() {
     console.log('loop started');
-    myArcGroup = new ArcGroup(10);
-    myArcGroup.init();
+    // myArcGroup = new ArcGroup(30);
+    // myArcGroup.init();
+    myNet = new Net(10);
+    myNet.init();
     aLoopInit(60);
   });
 
