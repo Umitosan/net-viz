@@ -100,16 +100,22 @@ function TxtBox(x,y,font,color) {
   }
 }
 
-function Arrow() {
-  this.x1 = 0;
-  this.y1 = 0;
-  this.x2 = 0;
-  this.x2 = 0;
+function Arrow(cell1, cell2) {
+  this.x1 = cell1.x;
+  this.y1 = cell1.y;
+  this.x2 = cell2.x;
+  this.x2 =  cell2.y;
+  this.color = cell1.color;
 
   this.draw = function() {
-
-  }
-}
+    ctx.beginPath();
+    ctx.fillStyle = this.color;
+    ctx.lineWidth = 1;
+    ctx.moveTo(this.x1,this.y1);
+    ctx.lineTo(this.x2,this.y2);
+    ctx.stroke();
+  } // draw
+} // Arrow
 
 function Cell(x,y,r,color) {
   this.x = x;
@@ -118,6 +124,18 @@ function Cell(x,y,r,color) {
   this.sAngle = 0;
   this.eAngle = 2 * Math.PI;
   this.color = color;
+  this.arrows = [];
+  // arrow width = cell.internalCoeff * cell.linkCoeff
+  // this.internalCoeff = 0;  single number for strength of outgoing signal
+
+  this.init = function() {
+    for (var i = 0; i <= getRandomIntInclusive(0,3); i++) {
+      var pair = myNet.getRandPair();
+      // console.log('pair = ', pair);
+      this.arrows.push(new Arrow(pair[0], pair[1]));
+    }
+    console.log('this.arrows = ', this.arrows);
+  }
 
   this.draw = function() {
     // context.arc(x,y,r,sAngle,eAngle,counterclockwise);
@@ -126,29 +144,57 @@ function Cell(x,y,r,color) {
     // counterclockwise	Optional. Specifies whether the drawing should be counterclockwise or clockwise. False is default...
     //    and indicates clockwise, while true indicates counter-clockwise.
     ctx.beginPath();
-    ctx.fillStyle = this.color;
+    // ctx.fillStyle = this.color;
     ctx.strokeStyle = this.color;
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 6;
     ctx.arc(this.x,this.y,this.r,this.sAngle,this.eAngle);  // ctx.arc(x,y,radius,startAngle,endAngle)
-    ctx.fill();
+    // ctx.fill();
     ctx.stroke();
+    // draw all arrows
+    for (var i = 0; i < this.arrows.length; i++) {
+      this.arrows[i].draw();
+    }
   } // draw
 
+  this.update = function() {
+    // randomize the relationships between cells shown with arrows
+
+  } // update
 } // Cell
 
 function Net(quantity) {
   this.cells = [];
 
   this.init = function() {
+    // fill with new cells
     for (var i = 0; i < quantity; i++) {
       var randRad = getRandomIntInclusive(4, 26);
       //  Cell(x,y,r,color)
-      this.cells.push( new Cell(getRandomIntInclusive(randRad, canvas.width-randRad), // center x
-                                getRandomIntInclusive(randRad, canvas.height-randRad), // center y
-                                randRad, // radius
-                                randColor('hex')) // color
-                                );
+      var tmpCell = new Cell( getRandomIntInclusive(randRad, canvas.width-randRad), // center x
+                              getRandomIntInclusive(randRad, canvas.height-randRad), // center y
+                              randRad, // radius
+                              randColor('hex') // color
+                            );
+      this.cells.push(tmpCell);
+    } // fill this.cells
+    // init all new cells
+    for (var j = 0; j < this.cells.length; j++) {
+      // console.log('this.cells[j] = ', this.cells[j]);
+      this.cells[j].init();
     }
+  }
+
+  this.getRandPair = function() {
+   var index1, index2;
+    while (true) {
+      index1 = getRandomIntInclusive(0,this.cells.length-1);
+      index2 = getRandomIntInclusive(0,this.cells.length-1);
+      if (index1 === index2) {
+        break;
+      }
+    }
+    return { 0: this.cells[index1],
+             1: this.cells[index2] };
   }
 
   this.draw = function() {
@@ -235,9 +281,10 @@ function aLoop(newtime) {
       // Get ready for next frame by setting then=now, but...
       // Also, adjust for fpsInterval not being multiple of 16.67
       then = now - (elapsed % fpsInterval);
-      clearCanvas();
       // myArcGroup.update();
+      myNet.update();
   }
+  clearCanvas();
   // myArcGroup.draw();
   myNet.draw();
   myReq = requestAnimationFrame(aLoop);
@@ -256,11 +303,12 @@ $(document).ready(function() {
     console.log('loop started');
     // myArcGroup = new ArcGroup(30);
     // myArcGroup.init();
+    clearCanvas();
     var cellCount = $('#cell-count').val();
     console.log('cellCount = ', cellCount);
     myNet = new Net(cellCount);
     myNet.init();
-    aLoopInit(60);
+    aLoopInit(2);
   });
 
   $('#pause').click(function() {

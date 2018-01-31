@@ -14,6 +14,8 @@ Goals
     4b. these three distinct groups of cells should be identified through color, border, or other differences
 
 
+
+
 <netPopulation>
   group of nets who will compete against one another through evolutionary cycles
   nets complete over each cycle
