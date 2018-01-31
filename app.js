@@ -235,7 +235,6 @@ function aLoop(newtime) {
       // Get ready for next frame by setting then=now, but...
       // Also, adjust for fpsInterval not being multiple of 16.67
       then = now - (elapsed % fpsInterval);
-
       clearCanvas();
       // myArcGroup.update();
   }
@@ -257,7 +256,9 @@ $(document).ready(function() {
     console.log('loop started');
     // myArcGroup = new ArcGroup(30);
     // myArcGroup.init();
-    myNet = new Net(10);
+    var cellCount = $('#cell-count').val();
+    console.log('cellCount = ', cellCount);
+    myNet = new Net(cellCount);
     myNet.init();
     aLoopInit(60);
   });
