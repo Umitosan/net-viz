@@ -25,73 +25,11 @@ var myColors = {
   greenAlpha: 'rgba(0,128,0,0.2)',
 }
 
-// function Arc(x,y,r,color) {
-//   this.x = x;
-//   this.y = y;
-//   this.r = r;
-//   this.sAngle = 0;
-//   this.eAngle = 2 * Math.PI;
-//   this.xVel = getRandomIntInclusive(1,8)*randSign(); // rand speed and direction
-//   this.yVel = getRandomIntInclusive(1,8)*randSign(); // rand speed and direction
-//   this.color = color;
-//
-//   this.draw = function() {
-//     // context.arc(x,y,r,sAngle,eAngle,counterclockwise);
-//     // sAngle	The starting angle, in radians (0 is at the 3 o'clock position of the arc's circle)
-//     // eAngle	The ending angle, in radians
-//     // counterclockwise	Optional. Specifies whether the drawing should be counterclockwise or clockwise. False is default...
-//     //    and indicates clockwise, while true indicates counter-clockwise.
-//     ctx.beginPath();
-//     ctx.fillStyle = this.color;
-//     ctx.strokeStyle = this.color;
-//     ctx.lineWidth = 1;
-//     ctx.arc(this.x,this.y,this.r,this.sAngle,this.eAngle);
-//     ctx.fill();
-//     ctx.stroke();
-//   } // draw
-//
-//   this.update = function() {
-//     if (  ((this.x + this.xVel + this.r) > canvas.width) || ((this.x + this.xVel - this.r) < 0)  ) {
-//       this.xVel *= -1;
-//     }
-//     if (  ((this.y + this.yVel + this.r) > canvas.height) || ((this.y + this.yVel - this.r) < 0)  ) {
-//       this.yVel *= -1;
-//     }
-//     this.x += this.xVel;
-//     this.y += this.yVel;
-//   } // update
-// } // Arc
-
-// function ArcGroup(quantity) {
-//   this.arcs = [];
-//
-//   this.init = function() {
-//     for (var i = 0; i < quantity; i++) {
-//       var randRad = getRandomIntInclusive(4, 26);
-//       //  arc(x,y,radius,startAngle,endAngle);
-//       this.arcs.push( new Arc(getRandomIntInclusive(randRad, canvas.width-randRad), getRandomIntInclusive(randRad, canvas.height-randRad), randRad, randColor('hex')) );
-//     }
-//   }
-//
-//   this.draw = function() {
-//     for (var i = 0; i < this.arcs.length; i++) {
-//       // this.arcs[i].drawErase();
-//       this.arcs[i].draw();
-//     }
-//   }
-//
-//   this.update = function() {
-//     for (var i = 0; i < this.arcs.length; i++) {
-//       this.arcs[i].update();
-//     }
-//   }
-// } // ArcGroup
-
 function TxtBox(x,y,fontSize,color,str) {
   this.x = x;
   this.y = y;
   this.fontSize = fontSize;
-  this.font = fontSize.toString() + "px Ariel";
+  this.font = fontSize.toString() + "px Courier";
   this.color = color;
   this.str = str;
 
@@ -106,12 +44,14 @@ function TxtBox(x,y,fontSize,color,str) {
   }
 }
 
-function Arrow(cell1, cell2) {
-  this.x1 = cell1.x;
-  this.y1 = cell1.y;
-  this.x2 = cell2.x;
-  this.y2 =  cell2.y;
-  this.color = cell1.color;
+function Arrow(cellIndex1, cellIndex2) {
+  this.ind1 = cellIndex1;
+  this.ind2 = cellIndex2;
+  this.x1 = myNet.cells[cellIndex1].x;
+  this.y1 = myNet.cells[cellIndex1].y;
+  this.x2 = myNet.cells[cellIndex2].x;
+  this.y2 =  myNet.cells[cellIndex2].y;
+  this.color = myNet.cells[cellIndex1].color;
 
   this.draw = function() {
     ctx.beginPath();
@@ -121,6 +61,13 @@ function Arrow(cell1, cell2) {
     ctx.lineTo(this.x2,this.y2);
     ctx.stroke();
   } // draw
+
+  this.update = function() {
+    this.x1 += myNet.cells[this.ind1].xVel;
+    this.y1 += myNet.cells[this.ind1].yVel;
+    this.x2 += myNet.cells[this.ind2].xVel;
+    this.y2 += myNet.cells[this.ind2].yVel;
+  }
 } // Arrow
 
 function Cell(x,y,r,color) {
@@ -130,6 +77,8 @@ function Cell(x,y,r,color) {
   this.sAngle = 0;
   this.eAngle = 2 * Math.PI;
   this.color = color;
+  this.xVel = getRandomIntInclusive(1,3)*randSign(); // rand speed and direction
+  this.yVel = getRandomIntInclusive(1,3)*randSign(); // rand speed and direction
   this.txt = undefined;
   this.arrows = [];
   // arrow width = cell.internalCoeff * cell.linkCoeff
@@ -137,15 +86,16 @@ function Cell(x,y,r,color) {
 
   this.init = function(index) {
     // TxtBox(x,y,font,color)
-    this.txt = new TxtBox(this.x-4,this.y-this.r-4,14,myColors.black,index.toString());
-    // just make one relationship
+    this.txt = new TxtBox(this.x-4,this.y-this.r-5,16,myColors.black,index.toString());
+    // just make one relationship (arrow)
     var pair = myNet.getRandPair();
-    // console.log('pair = ', pair);
     this.arrows.push(new Arrow(pair[0], pair[1]));
-    // console.log('this.arrows = ', this.arrows);
   }
 
   this.draw = function() {
+    this.arrows.forEach(a => {
+      a.draw();
+    });
     // context.arc(x,y,r,sAngle,eAngle,counterclockwise);
     // sAngle	The starting angle, in radians (0 is at the 3 o'clock position of the arc's circle)
     // eAngle	The ending angle, in radians
@@ -159,20 +109,28 @@ function Cell(x,y,r,color) {
     // ctx.fill();
     ctx.stroke();
     // draw all arrows
-    this.arrows.forEach(function(a) {
-      // console.log('arrow = ', a);
-      a.draw();
-    });
     this.txt.draw();
-    // for (var i = 0; i < this.arrows.length; i++) {
-    //   this.arrows[i].draw();
-    // }
   } // draw
 
-  this.update = function() {
-    // randomize the relationships between cells shown with arrows
-
-  } // update
+    this.update = function() {
+      // check cell bounds on canvas edges
+      if (  ((this.x + this.xVel + this.r) > canvas.width) || ((this.x + this.xVel - this.r) < 0)  ) {
+        this.xVel *= -1;
+      }
+      if (  ((this.y + this.yVel + this.r) > canvas.height) || ((this.y + this.yVel - this.r) < 0)  ) {
+        this.yVel *= -1;
+      }
+      // change cell position
+      this.x += this.xVel;
+      this.y += this.yVel;
+      // update txt txt label
+      this.txt.x += this.xVel;
+      this.txt.y += this.yVel;
+      // update arrow positions
+      this.arrows.forEach(tmpArrow => {
+        tmpArrow.update();
+      });
+    } // update
 } // Cell
 
 function Net(quantity) {
@@ -192,7 +150,6 @@ function Net(quantity) {
     } // fill this.cells
     // init all new cells
     for (var j = 0; j < this.cells.length; j++) {
-      // console.log('this.cells[j] = ', this.cells[j]);
       this.cells[j].init(j);
     }
   } // init
@@ -208,8 +165,8 @@ function Net(quantity) {
         break;
       }
     }
-    return { 0: this.cells[index1],
-             1: this.cells[index2] };
+    return { 0: index1,
+             1: index2 };
   }
 
   this.draw = function() {
@@ -218,9 +175,9 @@ function Net(quantity) {
     }
   } // draw
   this.update = function() {
-    // for (var i = 0; i < this.cells.length; i++) {
-    //   this.cells[i].update();
-    // }
+    for (var i = 0; i < this.cells.length; i++) {
+      this.cells[i].update();
+    }
   } // update
 } // ArcGroup
 
@@ -230,7 +187,7 @@ function aLoopInit(fps) {
   fpsInterval = (1000 / fps);  // number of milliseconds per frame
   then = window.performance.now();
   startTime = then;
-  console.log(startTime);
+  // console.log(startTime);
   aLoopPause = false;
   if (myReq !== undefined) {
     cancelAnimationFrame(myReq);
@@ -262,7 +219,6 @@ function aLoop(newtime) {
       myNet.update();
   }
   clearCanvas();
-  // myArcGroup.draw();
   myNet.draw();
   myReq = requestAnimationFrame(aLoop);
 }
@@ -320,7 +276,6 @@ $(document).ready(function() {
     // myArcGroup.init();
     clearCanvas();
     var cellCount = $('#cell-count').val();
-    console.log('cellCount = ', cellCount);
     myNet = new Net(cellCount);
     myNet.init();
     aLoopInit(2);
