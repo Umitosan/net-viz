@@ -56,7 +56,7 @@ function Arrow(cellIndex1, cellIndex2) {
   this.draw = function() {
     ctx.beginPath();
     ctx.strokeStyle = this.color;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1;
     ctx.moveTo(this.x1,this.y1);
     ctx.lineTo(this.x2,this.y2);
     ctx.stroke();
@@ -77,8 +77,8 @@ function Cell(x,y,r,color) {
   this.sAngle = 0;
   this.eAngle = 2 * Math.PI;
   this.color = color;
-  this.xVel = getRandomIntInclusive(1,3)*randSign(); // rand speed and direction
-  this.yVel = getRandomIntInclusive(1,3)*randSign(); // rand speed and direction
+  this.xVel = getRandomIntInclusive(1,2)*randSign(); // rand speed and direction
+  this.yVel = getRandomIntInclusive(1,2)*randSign(); // rand speed and direction
   this.txt = undefined;
   this.arrows = [];
   // arrow width = cell.internalCoeff * cell.linkCoeff
@@ -278,7 +278,7 @@ $(document).ready(function() {
     var cellCount = $('#cell-count').val();
     myNet = new Net(cellCount);
     myNet.init();
-    aLoopInit(2);
+    aLoopInit(30);
   });
 
   $('#pause').click(function() {
