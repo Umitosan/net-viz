@@ -25,8 +25,10 @@ var myColors = {
   greenAlpha: 'rgba(0,128,0,0.2)',
 }
 
-function TxtBox(x,y,fontSize,color,str) {
-  this.x = x;
+function TxtBox(x,y,fontSize,color,str,cellIndex) {
+  // aprox center for text above cell
+  // (x == 2 ? "yes" : "no")
+  this.x = ( (cellIndex > 9) ? (x-2) : (x+1) );
   this.y = y;
   this.fontSize = fontSize;
   this.font = fontSize.toString() + "px Courier";
@@ -34,10 +36,6 @@ function TxtBox(x,y,fontSize,color,str) {
   this.str = str;
 
   this.draw = function() {
-    // white background
-    ctx.font = this.font;
-    ctx.fillStyle = 'white';
-    ctx.fillText(this.str,this.x,this.y);
     // black number
     ctx.fillStyle = this.color;
     ctx.fillText(this.str,this.x,this.y);
@@ -86,7 +84,7 @@ function Cell(x,y,r,color) {
 
   this.init = function(index) {
     // TxtBox(x,y,font,color)
-    this.txt = new TxtBox(this.x-4,this.y-this.r-5,16,myColors.black,index.toString());
+    this.txt = new TxtBox(this.x-4,this.y-this.r-5,16,myColors.black,index.toString(),index);
     // just make one relationship (arrow)
     var pair = myNet.getRandPair();
     this.arrows.push(new Arrow(pair[0], pair[1]));
