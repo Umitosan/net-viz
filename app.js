@@ -82,28 +82,30 @@ function Arrow(cellIndex1, cellIndex2) {
   this.setLinePair = function() {
     var tRad;
     if ( (this.x1 <= this.x2) && (this.y1 <= this.y2) ) {  // c0 left and above c1
-      console.log(this.ind1 + " left and above " + this.ind2);
+      // console.log(this.ind1 + " left and above " + this.ind2);
       tRad = Math.atan( Math.pow(this.x2-this.x1,2) + Math.pow(this.y2-this.y1,2) );
-      this.xxx1 = ( Math.cos(tRad) * (myNet.cells[this.ind1].r) ) + this.x1;
-      this.yyy1 = ( Math.sin(tRad) * (myNet.cells[this.ind1].r) ) + this.y1;
-      this.xxx2 = this.x2 - (this.xxx1 - this.x1);
-      this.yyy2 = this.y2 - (this.yyy1 - this.y1);
+      this.xxx1 = this.x1 + ( Math.cos(tRad) * (myNet.cells[this.ind1].r) );
+      this.yyy1 = this.y1 + ( Math.sin(tRad) * (myNet.cells[this.ind1].r) );
+      this.xxx2 = ( Math.cos(tRad) * (myNet.cells[this.ind2].r) ) + this.x2;
+      this.yyy2 = ( Math.cos(tRad) * (myNet.cells[this.ind2].r) ) + this.y2;
+      // this.xxx2 = this.x2 - (this.xxx1 - this.x1);
+      // this.yyy2 = this.y2 - (this.yyy1 - this.y1);
     } else if ( (this.x1 <= this.x2) && (this.y1 >= this.y2) ) {  // c0 left and below c1
-      console.log(this.ind1 + " left and below " + this.ind2);
+      // console.log(this.ind1 + " left and below " + this.ind2);
       tRad = Math.atan( Math.pow(this.x2-this.x1,2) + Math.pow(this.y1-this.y2,2) );
       this.xxx1 = ( Math.cos(tRad) * (myNet.cells[this.ind1].r) ) + this.x1;
-      this.yyy1 = this.y1 -( Math.sin(tRad) * (myNet.cells[this.ind1].r) );
+      this.yyy1 = this.y1 - ( Math.sin(tRad) * (myNet.cells[this.ind1].r) );
       this.xxx2 = this.x2 - (this.xxx1 - this.x1);
       this.yyy2 = this.y2 + (this.yyy1 - this.y1);
     } else if ( (this.x1 >= this.x2) && (this.y1 <= this.y2) ) {  // c0 right and above c1
-      console.log(this.ind1 + " right and above " + this.ind2);
+      // console.log(this.ind1 + " right and above " + this.ind2);
       tRad = Math.atan( Math.pow(this.x1-this.x2,2) + Math.pow(this.y2-this.y1,2) );
       this.xxx1 = this.x1 - ( Math.cos(tRad) * (myNet.cells[this.ind1].r) );
       this.yyy1 = ( Math.sin(tRad) * (myNet.cells[this.ind1].r) ) + this.y1;
       this.xxx2 = this.x2 + (this.x1 - this.xxx1);
       this.yyy2 = this.y2 - (this.yyy1 - this.y1);
     } else if ( (this.x1 >= this.x2) && (this.y1 >= this.y2) ) {  // c0 right and below c1
-      console.log(this.ind1 + " right and below " + this.ind2);
+      // console.log(this.ind1 + " right and below " + this.ind2);
       tRad = Math.atan( Math.pow(this.x1-this.x2,2) + Math.pow(this.y1-this.y2,2) );
       this.xxx1 = this.x1 - ( Math.cos(tRad) * (myNet.cells[this.ind1].r) );
       this.yyy1 = this.y1 - ( Math.sin(tRad) * (myNet.cells[this.ind1].r) );
@@ -133,7 +135,7 @@ function Cell(x,y,r,color) {
     // TxtBox(x,y,font,color)
     this.txt = new TxtBox(this.x-4,this.y-this.r-5,16,myColors.black,index.toString(),index);
     // just make one relationship (arrow)
-    var pair = myNet.getRandPair();
+    var pair = myNet.getRandIndex(index);
     this.arrows.push(new Arrow(pair[0], pair[1]));
   }
 
@@ -149,7 +151,7 @@ function Cell(x,y,r,color) {
     ctx.beginPath();
     // ctx.fillStyle = this.color;
     ctx.strokeStyle = this.color;
-    ctx.lineWidth = 6;
+    ctx.lineWidth = 2;
     ctx.arc(this.x,this.y,this.r,this.sAngle,this.eAngle);  // ctx.arc(x,y,radius,startAngle,endAngle)
     // ctx.fill();
     ctx.stroke();
@@ -198,20 +200,31 @@ function Net(quantity) {
       this.cells[j].init(j);
     }
   } // init
-  // returns random unique pair of cells to draw an arrow between
-  this.getRandPair = function() {
-    var index1,
-        index2;
+  // get random cell index to draw an arrow to
+  this.getRandIndex = function(cIndex) {
+    var ind;
     while (true) {
-      index1 = getRandomIntInclusive(0,this.cells.length-1);
-      index2 = getRandomIntInclusive(0,this.cells.length-1);
-      if (index1 !== index2) {
+      ind = getRandomIntInclusive(0,this.cells.length-1);
+      if (ind !== cIndex) {
         break;
       }
     }
-    return { 0: index1,
-             1: index2 };
-  }
+    return { 0: cIndex, 1: ind };
+  } // getRandIndex
+  // returns random unique pair of cells to draw an arrow between
+  // this.getRandPair = function() {
+  //   var index1,
+  //       index2;
+  //   while (true) {
+  //     index1 = getRandomIntInclusive(0,this.cells.length-1);
+  //     index2 = getRandomIntInclusive(0,this.cells.length-1);
+  //     if (index1 !== index2) {
+  //       break;
+  //     }
+  //   }
+  //   return { 0: index1,
+  //            1: index2 };
+  // }
   this.draw = function() {
     for (var i = 0; i < this.cells.length; i++) {
       this.cells[i].draw();
