@@ -45,10 +45,6 @@ function TxtBox(x,y,fontSize,color,str,cellIndex) {
 function Arrow(cellIndex1, cellIndex2) {
   this.ind1 = cellIndex1;
   this.ind2 = cellIndex2;
-  this.x1 = myNet.cells[cellIndex1].x;
-  this.y1 = myNet.cells[cellIndex1].y;
-  this.x2 = myNet.cells[cellIndex2].x;
-  this.y2 =  myNet.cells[cellIndex2].y;
   this.color = myNet.cells[cellIndex1].color;
   this.xxx1;
   this.yyy1;
@@ -65,45 +61,48 @@ function Arrow(cellIndex1, cellIndex2) {
   } // draw
 
   this.update = function() {
-    this.x1 += myNet.cells[this.ind1].xVel;
-    this.y1 += myNet.cells[this.ind1].yVel;
-    this.x2 += myNet.cells[this.ind2].xVel;
-    this.y2 += myNet.cells[this.ind2].yVel;
-    this.setLinePair();
+    var tRad;
+    var x1 = myNet.cells[this.ind1].x;
+    var y1 = myNet.cells[this.ind1].y;
+    var r1 = myNet.cells[this.ind1].r;
+    var x2 = myNet.cells[this.ind2].x;
+    var y2 = myNet.cells[this.ind2].y;
+    var r2 = myNet.cells[this.ind2].r;
+    // calculate the (x1 y1) (x2 y2) start and finish coords of the arrow
+    //   so that the line attachs to the correct location on the cell wall
+    if ( (x1 <= x2) && (y1 <= y2) ) {  // c0 left and above c1
+      tRad = Math.atan( (y2-y1) / (x2-x1) );
+      this.xxx1 = x1 + ( Math.cos(tRad) * (r1) );
+      this.yyy1 = y1 + ( Math.sin(tRad) * (r1) );
+      this.xxx2 = x2 - ( Math.cos(tRad) * (r2) );
+      this.yyy2 = y2 - ( Math.sin(tRad) * (r2) );
+    } else if ( (x1 <= x2) && (y1 >= y2) ) {  // c0 left and below c1
+      tRad = Math.atan( (y1-y2) / (x2-x1));
+      this.xxx1 = x1 + ( Math.cos(tRad) * (r1) );
+      this.yyy1 = y1 - ( Math.sin(tRad) * (r1) );
+      this.xxx2 = x2 - ( Math.cos(tRad) * (r2) );
+      this.yyy2 = y2 + ( Math.sin(tRad) * (r2) );
+    } else if ( (x1 > x2) && (y1 < y2) ) {  // c0 right and above c1
+      tRad = Math.atan( (y2-y1) / (x1-x2) );
+      this.xxx1 = x1 - ( Math.cos(tRad) * (r1) );
+      this.yyy1 = y1 + ( Math.sin(tRad) * (r1) );
+      this.xxx2 = x2 + ( Math.cos(tRad) * (r2) );
+      this.yyy2 = y2 - ( Math.sin(tRad) * (r2) );
+    } else if ( (x1 > x2) && (y1 > y2) ) {  // c0 right and below c1
+      tRad = Math.atan( (y1-y2) / (x1-x2) );
+      this.xxx1 = x1 - ( Math.cos(tRad) * (r1) );
+      this.yyy1 = y1 - ( Math.sin(tRad) * (r1) );
+      this.xxx2 = x2 + ( Math.cos(tRad) * (r2) );
+      this.yyy2 = y2 + ( Math.sin(tRad) * (r2) );
+    } else {
+      console.log('arrow update error on cell: '+this.ind1);
+      console.log("x1 y1 x2 y2: "+x1+" "+y1+" "+x2+" "+y2);
+      console.log(this);
+    } // if
+    // console.log('circle: '+this.ind1+' xxx1: '+this.xxx1+' y1: '+this.yyy1+' x2: '+this.xxx2+' y2: '+this.yyy2);
   } // update
 
-  // calculate the (x1 y1) (x2 y2) start and finish coords of the arrow
-  //   so that the line attachs to the correct location on the cell wall
-  this.setLinePair = function() {
-    var tRad;
-    if ( (this.x1 <= this.x2) && (this.y1 <= this.y2) ) {  // c0 left and above c1
-      tRad = Math.atan( (this.y2-this.y1) / (this.x2-this.x1) );
-      this.xxx1 = this.x1 + ( Math.cos(tRad) * (myNet.cells[this.ind1].r) );
-      this.yyy1 = this.y1 + ( Math.sin(tRad) * (myNet.cells[this.ind1].r) );
-      this.xxx2 = this.x2 - ( Math.cos(tRad) * (myNet.cells[this.ind2].r) );
-      this.yyy2 = this.y2 - ( Math.sin(tRad) * (myNet.cells[this.ind2].r) );
-    } else if ( (this.x1 <= this.x2) && (this.y1 >= this.y2) ) {  // c0 left and below c1
-      tRad = Math.atan( (this.y1-this.y2) / (this.x2-this.x1) );
-      this.xxx1 = this.x1 + ( Math.cos(tRad) * (myNet.cells[this.ind1].r) );
-      this.yyy1 = this.y1 - ( Math.sin(tRad) * (myNet.cells[this.ind1].r) );
-      this.xxx2 = this.x2 - ( Math.cos(tRad) * (myNet.cells[this.ind2].r) );
-      this.yyy2 = this.y2 + ( Math.sin(tRad) * (myNet.cells[this.ind2].r) );
-    } else if ( (this.x1 >= this.x2) && (this.y1 <= this.y2) ) {  // c0 right and above c1
-      tRad = Math.atan( (this.y2-this.y1) / (this.x1-this.x2) );
-      this.xxx1 = this.x1 - ( Math.cos(tRad) * (myNet.cells[this.ind1].r) );
-      this.yyy1 = this.y1 + ( Math.sin(tRad) * (myNet.cells[this.ind1].r) );
-      this.xxx2 = this.x2 + ( Math.cos(tRad) * (myNet.cells[this.ind2].r) );
-      this.yyy2 = this.y2 - ( Math.sin(tRad) * (myNet.cells[this.ind2].r) );
-    } else if ( (this.x1 >= this.x2) && (this.y1 >= this.y2) ) {  // c0 right and below c1
-      tRad = Math.atan( (this.y1-this.y2) / (this.x1-this.x2) );
-      this.xxx1 = this.x1 - ( Math.cos(tRad) * (myNet.cells[this.ind1].r) );
-      this.yyy1 = this.y1 - ( Math.sin(tRad) * (myNet.cells[this.ind1].r) );
-      this.xxx2 = this.x2 + ( Math.cos(tRad) * (myNet.cells[this.ind2].r) );
-      this.yyy2 = this.y2 + ( Math.sin(tRad) * (myNet.cells[this.ind2].r) );
-    } else {
-      console.log('getLinePair error');
-    } // if
-  } // setLinePair
+
 } // Arrow
 
 function Cell(x,y,r,color) {
@@ -117,7 +116,7 @@ function Cell(x,y,r,color) {
   this.yVel = getRandomIntInclusive(1,2)*randSign(); // rand speed and direction
   this.txt = undefined;
   this.arrows = [];
-  this.wallThick = 4;
+  this.wallThick = 3;
   // arrow width = cell.internalCoeff * cell.linkCoeff
   // this.internalCoeff = 0;  single number for strength of outgoing signal
 
@@ -130,7 +129,7 @@ function Cell(x,y,r,color) {
   }
 
   this.draw = function() {
-    this.arrows.forEach(a => {
+    this.arrows.forEach(function(a) {
       a.draw();
     });
     // context.arc(x,y,r,sAngle,eAngle,counterclockwise);
@@ -139,11 +138,9 @@ function Cell(x,y,r,color) {
     // counterclockwise	Optional. Specifies whether the drawing should be counterclockwise or clockwise. False is default...
     //    and indicates clockwise, while true indicates counter-clockwise.
     ctx.beginPath();
-    // ctx.fillStyle = this.color;
     ctx.strokeStyle = this.color;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = this.wallThick;
     ctx.arc(this.x,this.y,this.r,this.sAngle,this.eAngle);  // ctx.arc(x,y,radius,startAngle,endAngle)
-    // ctx.fill();
     ctx.stroke();
     // draw all arrows
     this.txt.draw();
@@ -163,10 +160,6 @@ function Cell(x,y,r,color) {
       // update txt txt label
       this.txt.x += this.xVel;
       this.txt.y += this.yVel;
-      // update arrow positions
-      this.arrows.forEach(tmpArrow => {
-        tmpArrow.update();
-      });
     } // update
 } // Cell
 
@@ -201,28 +194,22 @@ function Net(quantity) {
     }
     return { 0: cIndex, 1: ind };
   } // getRandIndex
-  // returns random unique pair of cells to draw an arrow between
-  // this.getRandPair = function() {
-  //   var index1,
-  //       index2;
-  //   while (true) {
-  //     index1 = getRandomIntInclusive(0,this.cells.length-1);
-  //     index2 = getRandomIntInclusive(0,this.cells.length-1);
-  //     if (index1 !== index2) {
-  //       break;
-  //     }
-  //   }
-  //   return { 0: index1,
-  //            1: index2 };
-  // }
   this.draw = function() {
     for (var i = 0; i < this.cells.length; i++) {
       this.cells[i].draw();
     }
   } // draw
   this.update = function() {
+    // cells first to get locations
     for (var i = 0; i < this.cells.length; i++) {
       this.cells[i].update();
+    }
+    // arrows musst be updated separately to gather all new cell positions
+    for (var i = 0; i < this.cells.length; i++) {
+      // update arrow positions
+      this.cells[i].arrows.forEach(function(a) {
+        a.update();
+      });
     }
   } // update
 } // Net
@@ -237,6 +224,7 @@ function aLoopInit(fps) {
   if (myReq !== undefined) {
     cancelAnimationFrame(myReq);
   }
+  myNet.update(); // establish correct starting points
   myReq = requestAnimationFrame(aLoop);
 }
 
@@ -278,13 +266,6 @@ function getRadianAngle(degreeValue) {
 function randSign() {
   var num = getRandomIntInclusive(1,2)
   return (num === 1) ? (1) : (-1);
-
-  // if (num === 1) {
-  //   return 1
-  // } else {
-  //   return -1;
-  // }
-
 }
 
 function randColor(type) {
@@ -319,14 +300,14 @@ $(document).ready(function() {
   ctx = canvas.getContext('2d');
 
   $('#start').click(function() {
-    console.log('loop started');
-    // myArcGroup = new ArcGroup(30);
-    // myArcGroup.init();
-    clearCanvas();
-    var cellCount = $('#cell-count').val();
-    myNet = new Net(cellCount);
-    myNet.init();
-    aLoopInit(30);
+    var cellCount = parseInt($('#cell-count').val());
+    if ( (cellCount >= 2) && (cellCount <= 1000) ) {
+      console.log('loop started');
+      clearCanvas();
+      myNet = new Net(cellCount);
+      myNet.init();
+      aLoopInit(40);  // aLoopInit(fps)
+    }
   });
 
   $('#pause').click(function() {
