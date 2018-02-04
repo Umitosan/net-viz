@@ -89,3 +89,29 @@ net
     </n_0>
   </nets>
 </netPopulation>
+
+
+Older notes:
+
+Overall structure
+----------------------------
+NetPopulation > Net > NewCell > NewLink
+OR
+NetPopulation > Net > Cell_Control == NewCell > NewLink
+
+
+note: starting from the first index from the first input are the input cells
+      lower-index cells are initiators of the inputs
+
+note: 'input cells' are at the beginning of the 'Net Cells list'
+      'output cells' at the end of the 'Net Cells list'
+
+
+Items worth visualizing
+-----------------------------------
+Cells = arange them in space
+	maybe put cells with more links in the middle
+	or the most incomming links in the middle
+
+postLinks = NET has physical links between cells before any time starts
+	include link coeficient

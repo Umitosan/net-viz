@@ -50,13 +50,23 @@ function Arrow(cellIndex1, cellIndex2) {
   this.x2 = myNet.cells[cellIndex2].x;
   this.y2 =  myNet.cells[cellIndex2].y;
   this.color = myNet.cells[cellIndex1].color;
+  this.xxx1;
+  this.yyy1;
+  this.xxx2;
+  this.yyy2;
 
   this.draw = function() {
+    // ctx.beginPath();
+    // ctx.strokeStyle = this.color;
+    // ctx.lineWidth = 1;
+    // ctx.moveTo(this.x1,this.y1);
+    // ctx.lineTo(this.x2,this.y2);
+    // ctx.stroke();
     ctx.beginPath();
     ctx.strokeStyle = this.color;
     ctx.lineWidth = 1;
-    ctx.moveTo(this.x1,this.y1);
-    ctx.lineTo(this.x2,this.y2);
+    ctx.moveTo(this.xxx1,this.yyy1);
+    ctx.lineTo(this.xxx2,this.yyy2);
     ctx.stroke();
   } // draw
 
@@ -65,7 +75,44 @@ function Arrow(cellIndex1, cellIndex2) {
     this.y1 += myNet.cells[this.ind1].yVel;
     this.x2 += myNet.cells[this.ind2].xVel;
     this.y2 += myNet.cells[this.ind2].yVel;
-  }
+    this.setLinePair();
+  } // update
+
+  // calculate the (x1 y1) (x2 y2) start and finish coords of the arrow
+  this.setLinePair = function() {
+    var tRad;
+    if ( (this.x1 <= this.x2) && (this.y1 <= this.y2) ) {  // c0 left and above c1
+      console.log(this.ind1 + " left and above " + this.ind2);
+      tRad = Math.atan( Math.pow(this.x2-this.x1,2) + Math.pow(this.y2-this.y1,2) );
+      this.xxx1 = ( Math.cos(tRad) * (myNet.cells[this.ind1].r) ) + this.x1;
+      this.yyy1 = ( Math.sin(tRad) * (myNet.cells[this.ind1].r) ) + this.y1;
+      this.xxx2 = this.x2 - (this.xxx1 - this.x1);
+      this.yyy2 = this.y2 - (this.yyy1 - this.y1);
+    } else if ( (this.x1 <= this.x2) && (this.y1 >= this.y2) ) {  // c0 left and below c1
+      console.log(this.ind1 + " left and below " + this.ind2);
+      tRad = Math.atan( Math.pow(this.x2-this.x1,2) + Math.pow(this.y1-this.y2,2) );
+      this.xxx1 = ( Math.cos(tRad) * (myNet.cells[this.ind1].r) ) + this.x1;
+      this.yyy1 = this.y1 -( Math.sin(tRad) * (myNet.cells[this.ind1].r) );
+      this.xxx2 = this.x2 - (this.xxx1 - this.x1);
+      this.yyy2 = this.y2 + (this.yyy1 - this.y1);
+    } else if ( (this.x1 >= this.x2) && (this.y1 <= this.y2) ) {  // c0 right and above c1
+      console.log(this.ind1 + " right and above " + this.ind2);
+      tRad = Math.atan( Math.pow(this.x1-this.x2,2) + Math.pow(this.y2-this.y1,2) );
+      this.xxx1 = this.x1 - ( Math.cos(tRad) * (myNet.cells[this.ind1].r) );
+      this.yyy1 = ( Math.sin(tRad) * (myNet.cells[this.ind1].r) ) + this.y1;
+      this.xxx2 = this.x2 + (this.x1 - this.xxx1);
+      this.yyy2 = this.y2 - (this.yyy1 - this.y1);
+    } else if ( (this.x1 >= this.x2) && (this.y1 >= this.y2) ) {  // c0 right and below c1
+      console.log(this.ind1 + " right and below " + this.ind2);
+      tRad = Math.atan( Math.pow(this.x1-this.x2,2) + Math.pow(this.y1-this.y2,2) );
+      this.xxx1 = this.x1 - ( Math.cos(tRad) * (myNet.cells[this.ind1].r) );
+      this.yyy1 = this.y1 - ( Math.sin(tRad) * (myNet.cells[this.ind1].r) );
+      this.xxx2 = this.x2 + (this.x1 - this.xxx1);
+      this.yyy2 = this.y2 - (this.y1 - this.yyy1);
+    } else {
+      console.log('getLinePair error');
+    } // if
+  } // setLinePair
 } // Arrow
 
 function Cell(x,y,r,color) {
@@ -151,7 +198,6 @@ function Net(quantity) {
       this.cells[j].init(j);
     }
   } // init
-
   // returns random unique pair of cells to draw an arrow between
   this.getRandPair = function() {
     var index1,
@@ -166,7 +212,6 @@ function Net(quantity) {
     return { 0: index1,
              1: index2 };
   }
-
   this.draw = function() {
     for (var i = 0; i < this.cells.length; i++) {
       this.cells[i].draw();
@@ -177,8 +222,7 @@ function Net(quantity) {
       this.cells[i].update();
     }
   } // update
-} // ArcGroup
-
+} // Net
 
 // prepare the loop to start based on current state
 function aLoopInit(fps) {
@@ -230,11 +274,14 @@ function getRadianAngle(degreeValue) {
 
 function randSign() {
   var num = getRandomIntInclusive(1,2)
-  if (num === 1) {
-    return 1
-  } else {
-    return -1;
-  }
+  return (num === 1) ? (1) : (-1);
+
+  // if (num === 1) {
+  //   return 1
+  // } else {
+  //   return -1;
+  // }
+
 }
 
 function randColor(type) {
@@ -286,6 +333,7 @@ $(document).ready(function() {
     } else {
       aLoopPause = false;
     }
+    console.log('randSign = ', randSign());
   });
 
   $('#reset').click(function() {
@@ -295,6 +343,8 @@ $(document).ready(function() {
   });
 
 });
+
+
 
 // really cool color pairs
 

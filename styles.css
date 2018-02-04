@@ -1,6 +1,7 @@
 
 body {
   background-color: lightblue;
+  background-image: image('backteria_bg.jpg');
 }
 
 h2 {
