@@ -56,12 +56,6 @@ function Arrow(cellIndex1, cellIndex2) {
   this.yyy2;
 
   this.draw = function() {
-    // ctx.beginPath();
-    // ctx.strokeStyle = this.color;
-    // ctx.lineWidth = 1;
-    // ctx.moveTo(this.x1,this.y1);
-    // ctx.lineTo(this.x2,this.y2);
-    // ctx.stroke();
     ctx.beginPath();
     ctx.strokeStyle = this.color;
     ctx.lineWidth = 1;
@@ -79,38 +73,33 @@ function Arrow(cellIndex1, cellIndex2) {
   } // update
 
   // calculate the (x1 y1) (x2 y2) start and finish coords of the arrow
+  //   so that the line attachs to the correct location on the cell wall
   this.setLinePair = function() {
     var tRad;
     if ( (this.x1 <= this.x2) && (this.y1 <= this.y2) ) {  // c0 left and above c1
-      // console.log(this.ind1 + " left and above " + this.ind2);
-      tRad = Math.atan( Math.pow(this.x2-this.x1,2) + Math.pow(this.y2-this.y1,2) );
+      tRad = Math.atan( (this.y2-this.y1) / (this.x2-this.x1) );
       this.xxx1 = this.x1 + ( Math.cos(tRad) * (myNet.cells[this.ind1].r) );
       this.yyy1 = this.y1 + ( Math.sin(tRad) * (myNet.cells[this.ind1].r) );
-      this.xxx2 = ( Math.cos(tRad) * (myNet.cells[this.ind2].r) ) + this.x2;
-      this.yyy2 = ( Math.cos(tRad) * (myNet.cells[this.ind2].r) ) + this.y2;
-      // this.xxx2 = this.x2 - (this.xxx1 - this.x1);
-      // this.yyy2 = this.y2 - (this.yyy1 - this.y1);
+      this.xxx2 = this.x2 - ( Math.cos(tRad) * (myNet.cells[this.ind2].r) );
+      this.yyy2 = this.y2 - ( Math.sin(tRad) * (myNet.cells[this.ind2].r) );
     } else if ( (this.x1 <= this.x2) && (this.y1 >= this.y2) ) {  // c0 left and below c1
-      // console.log(this.ind1 + " left and below " + this.ind2);
-      tRad = Math.atan( Math.pow(this.x2-this.x1,2) + Math.pow(this.y1-this.y2,2) );
-      this.xxx1 = ( Math.cos(tRad) * (myNet.cells[this.ind1].r) ) + this.x1;
+      tRad = Math.atan( (this.y1-this.y2) / (this.x2-this.x1) );
+      this.xxx1 = this.x1 + ( Math.cos(tRad) * (myNet.cells[this.ind1].r) );
       this.yyy1 = this.y1 - ( Math.sin(tRad) * (myNet.cells[this.ind1].r) );
-      this.xxx2 = this.x2 - (this.xxx1 - this.x1);
-      this.yyy2 = this.y2 + (this.yyy1 - this.y1);
+      this.xxx2 = this.x2 - ( Math.cos(tRad) * (myNet.cells[this.ind2].r) );
+      this.yyy2 = this.y2 + ( Math.sin(tRad) * (myNet.cells[this.ind2].r) );
     } else if ( (this.x1 >= this.x2) && (this.y1 <= this.y2) ) {  // c0 right and above c1
-      // console.log(this.ind1 + " right and above " + this.ind2);
-      tRad = Math.atan( Math.pow(this.x1-this.x2,2) + Math.pow(this.y2-this.y1,2) );
+      tRad = Math.atan( (this.y2-this.y1) / (this.x1-this.x2) );
       this.xxx1 = this.x1 - ( Math.cos(tRad) * (myNet.cells[this.ind1].r) );
-      this.yyy1 = ( Math.sin(tRad) * (myNet.cells[this.ind1].r) ) + this.y1;
-      this.xxx2 = this.x2 + (this.x1 - this.xxx1);
-      this.yyy2 = this.y2 - (this.yyy1 - this.y1);
+      this.yyy1 = this.y1 + ( Math.sin(tRad) * (myNet.cells[this.ind1].r) );
+      this.xxx2 = this.x2 + ( Math.cos(tRad) * (myNet.cells[this.ind2].r) );
+      this.yyy2 = this.y2 - ( Math.sin(tRad) * (myNet.cells[this.ind2].r) );
     } else if ( (this.x1 >= this.x2) && (this.y1 >= this.y2) ) {  // c0 right and below c1
-      // console.log(this.ind1 + " right and below " + this.ind2);
-      tRad = Math.atan( Math.pow(this.x1-this.x2,2) + Math.pow(this.y1-this.y2,2) );
+      tRad = Math.atan( (this.y1-this.y2) / (this.x1-this.x2) );
       this.xxx1 = this.x1 - ( Math.cos(tRad) * (myNet.cells[this.ind1].r) );
       this.yyy1 = this.y1 - ( Math.sin(tRad) * (myNet.cells[this.ind1].r) );
-      this.xxx2 = this.x2 + (this.x1 - this.xxx1);
-      this.yyy2 = this.y2 - (this.y1 - this.yyy1);
+      this.xxx2 = this.x2 + ( Math.cos(tRad) * (myNet.cells[this.ind2].r) );
+      this.yyy2 = this.y2 + ( Math.sin(tRad) * (myNet.cells[this.ind2].r) );
     } else {
       console.log('getLinePair error');
     } // if
@@ -128,6 +117,7 @@ function Cell(x,y,r,color) {
   this.yVel = getRandomIntInclusive(1,2)*randSign(); // rand speed and direction
   this.txt = undefined;
   this.arrows = [];
+  this.wallThick = 4;
   // arrow width = cell.internalCoeff * cell.linkCoeff
   // this.internalCoeff = 0;  single number for strength of outgoing signal
 
@@ -186,7 +176,7 @@ function Net(quantity) {
   this.init = function() {
     // fill with new cells
     for (var i = 0; i < quantity; i++) {
-      var randRad = getRandomIntInclusive(4, 26);
+      var randRad = getRandomIntInclusive(4, 45);
       //  Cell(x,y,r,color)
       var tmpCell = new Cell( getRandomIntInclusive(randRad, canvas.width-randRad), // center x
                               getRandomIntInclusive(randRad, canvas.height-randRad), // center y
