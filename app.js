@@ -82,21 +82,21 @@ function Arrow(cellIndex1, cellIndex2) {
       this.yyy1 = y1 - ( Math.sin(tRad) * (r1) );
       this.xxx2 = x2 - ( Math.cos(tRad) * (r2) );
       this.yyy2 = y2 + ( Math.sin(tRad) * (r2) );
-    } else if ( (x1 > x2) && (y1 < y2) ) {  // c0 right and above c1
+    } else if ( (x1 >= x2) && (y1 <= y2) ) {  // c0 right and above c1
       tRad = Math.atan( (y2-y1) / (x1-x2) );
       this.xxx1 = x1 - ( Math.cos(tRad) * (r1) );
       this.yyy1 = y1 + ( Math.sin(tRad) * (r1) );
       this.xxx2 = x2 + ( Math.cos(tRad) * (r2) );
       this.yyy2 = y2 - ( Math.sin(tRad) * (r2) );
-    } else if ( (x1 > x2) && (y1 > y2) ) {  // c0 right and below c1
+    } else if ( (x1 >= x2) && (y1 >= y2) ) {  // c0 right and below c1
       tRad = Math.atan( (y1-y2) / (x1-x2) );
       this.xxx1 = x1 - ( Math.cos(tRad) * (r1) );
       this.yyy1 = y1 - ( Math.sin(tRad) * (r1) );
       this.xxx2 = x2 + ( Math.cos(tRad) * (r2) );
       this.yyy2 = y2 + ( Math.sin(tRad) * (r2) );
     } else {
-      console.log('arrow update error on cell: '+this.ind1);
       console.log("x1 y1 x2 y2: "+x1+" "+y1+" "+x2+" "+y2);
+      console.log("collision");
       console.log(this);
     } // if
     // console.log('circle: '+this.ind1+' xxx1: '+this.xxx1+' y1: '+this.yyy1+' x2: '+this.xxx2+' y2: '+this.yyy2);
