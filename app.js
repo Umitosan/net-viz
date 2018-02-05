@@ -26,8 +26,7 @@ var myColors = {
 }
 
 function TxtBox(x,y,fontSize,color,str,cellIndex) {
-  // aprox center for text above cell
-  // (x == 2 ? "yes" : "no")
+  // aprox center for cell's txt TxtBox
   this.x = ( (cellIndex > 9) ? (x-2) : (x+1) );
   this.y = y;
   this.fontSize = fontSize;
@@ -50,18 +49,63 @@ function Arrow(cellIndex1, cellIndex2) {
   this.yyy1;
   this.xxx2;
   this.yyy2;
+  this.quadrant = 1;
+  this.tRad;
 
   this.draw = function() {
+    // draw main body of arrow
     ctx.beginPath();
     ctx.strokeStyle = this.color;
     ctx.lineWidth = 1;
     ctx.moveTo(this.xxx1,this.yyy1);
     ctx.lineTo(this.xxx2,this.yyy2);
     ctx.stroke();
+    this.drawHead();
   } // draw
 
+  // draw the head of the arrow (2 small lines)
+  this.drawHead = function() {
+    var xoff1,yoff1,xoff2,yoff2;
+    var length = 20
+    var x1Angle = Math.cos(this.tRad+Math.PI/10);
+    var y1Angle = Math.sin(this.tRad+Math.PI/10);
+    var x2Angle = Math.cos(this.tRad-Math.PI/10);
+    var y2Angle = Math.sin(this.tRad-Math.PI/10);
+
+    switch (this.quadrant) {
+      case 1: // quadrant 1
+        xoff1 = x1Angle * length; yoff1 = y1Angle * length;
+        xoff2 = x2Angle * length; yoff2 = y2Angle * length;
+        break;
+      case 2: // quadrant 2
+        xoff1 = -1*x1Angle*length; yoff1 = y1Angle*length;
+        xoff2 = -1 * x2Angle * length; yoff2 = y2Angle * length;
+        break;
+      case 3: // quadrant 3
+        xoff1 = -1 * x1Angle * length; yoff1 = -1 * y1Angle * length;
+        xoff2 = -1 * x2Angle * length; yoff2 = -1 * y2Angle * length;
+        break;
+      case 4: // quadrant 4
+        xoff1 = x1Angle * length; yoff1 = -1 * y1Angle * length;
+        xoff2 = x2Angle * length; yoff2 = -1 * y2Angle * length;
+        break;
+      default:
+        console.log('no quadrant found');
+        break;
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(this.xxx2,this.yyy2);
+    ctx.lineTo(this.xxx2+xoff1,this.yyy2+yoff1);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(this.xxx2,this.yyy2);
+    ctx.lineTo(this.xxx2+xoff2,this.yyy2+yoff2);
+    ctx.stroke();
+  }
+
   this.update = function() {
-    var tRad;
     var x1 = myNet.cells[this.ind1].x;
     var y1 = myNet.cells[this.ind1].y;
     var r1 = myNet.cells[this.ind1].r;
@@ -71,29 +115,33 @@ function Arrow(cellIndex1, cellIndex2) {
     // calculate the (x1 y1) (x2 y2) start and finish coords of the arrow
     //   so that the line attachs to the correct location on the cell wall
     if ( (x1 <= x2) && (y1 <= y2) ) {  // c0 left and above c1
-      tRad = Math.atan( (y2-y1) / (x2-x1) );
-      this.xxx1 = x1 + ( Math.cos(tRad) * (r1) );
-      this.yyy1 = y1 + ( Math.sin(tRad) * (r1) );
-      this.xxx2 = x2 - ( Math.cos(tRad) * (r2) );
-      this.yyy2 = y2 - ( Math.sin(tRad) * (r2) );
+      this.quadrant = 3;
+      this.tRad = Math.atan( (y2-y1) / (x2-x1) );
+      this.xxx1 = x1 + ( Math.cos(this.tRad ) * (r1) );
+      this.yyy1 = y1 + ( Math.sin(this.tRad ) * (r1) );
+      this.xxx2 = x2 - ( Math.cos(this.tRad ) * (r2) );
+      this.yyy2 = y2 - ( Math.sin(this.tRad ) * (r2) );
     } else if ( (x1 <= x2) && (y1 >= y2) ) {  // c0 left and below c1
-      tRad = Math.atan( (y1-y2) / (x2-x1));
-      this.xxx1 = x1 + ( Math.cos(tRad) * (r1) );
-      this.yyy1 = y1 - ( Math.sin(tRad) * (r1) );
-      this.xxx2 = x2 - ( Math.cos(tRad) * (r2) );
-      this.yyy2 = y2 + ( Math.sin(tRad) * (r2) );
+      this.quadrant = 2;
+      this.tRad  = Math.atan( (y1-y2) / (x2-x1));
+      this.xxx1 = x1 + ( Math.cos(this.tRad ) * (r1) );
+      this.yyy1 = y1 - ( Math.sin(this.tRad ) * (r1) );
+      this.xxx2 = x2 - ( Math.cos(this.tRad ) * (r2) );
+      this.yyy2 = y2 + ( Math.sin(this.tRad ) * (r2) );
     } else if ( (x1 >= x2) && (y1 <= y2) ) {  // c0 right and above c1
-      tRad = Math.atan( (y2-y1) / (x1-x2) );
-      this.xxx1 = x1 - ( Math.cos(tRad) * (r1) );
-      this.yyy1 = y1 + ( Math.sin(tRad) * (r1) );
-      this.xxx2 = x2 + ( Math.cos(tRad) * (r2) );
-      this.yyy2 = y2 - ( Math.sin(tRad) * (r2) );
+      this.quadrant = 4;
+      this.tRad  = Math.atan( (y2-y1) / (x1-x2) );
+      this.xxx1 = x1 - ( Math.cos(this.tRad ) * (r1) );
+      this.yyy1 = y1 + ( Math.sin(this.tRad ) * (r1) );
+      this.xxx2 = x2 + ( Math.cos(this.tRad ) * (r2) );
+      this.yyy2 = y2 - ( Math.sin(this.tRad ) * (r2) );
     } else if ( (x1 >= x2) && (y1 >= y2) ) {  // c0 right and below c1
-      tRad = Math.atan( (y1-y2) / (x1-x2) );
-      this.xxx1 = x1 - ( Math.cos(tRad) * (r1) );
-      this.yyy1 = y1 - ( Math.sin(tRad) * (r1) );
-      this.xxx2 = x2 + ( Math.cos(tRad) * (r2) );
-      this.yyy2 = y2 + ( Math.sin(tRad) * (r2) );
+      this.quadrant = 1;
+      this.tRad  = Math.atan( (y1-y2) / (x1-x2) );
+      this.xxx1 = x1 - ( Math.cos(this.tRad ) * (r1) );
+      this.yyy1 = y1 - ( Math.sin(this.tRad ) * (r1) );
+      this.xxx2 = x2 + ( Math.cos(this.tRad ) * (r2) );
+      this.yyy2 = y2 + ( Math.sin(this.tRad ) * (r2) );
     } else {
       console.log("x1 y1 x2 y2: "+x1+" "+y1+" "+x2+" "+y2);
       console.log("collision");
@@ -123,9 +171,11 @@ function Cell(x,y,r,color) {
   this.init = function(index) {
     // TxtBox(x,y,font,color)
     this.txt = new TxtBox(this.x-4,this.y-this.r-5,16,myColors.black,index.toString(),index);
-    // just make one relationship (arrow)
-    var pair = myNet.getRandIndex(index);
-    this.arrows.push(new Arrow(pair[0], pair[1]));
+    // make 0 - 1 arrows
+    if ( getRandomIntInclusive(0,1) ) {
+      var pair = myNet.getRandIndex(index);
+      this.arrows.push(new Arrow(pair[0], pair[1]));
+    }
   }
 
   this.draw = function() {
