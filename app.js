@@ -93,12 +93,12 @@ function Arrow(cellIndex1, cellIndex2) {
         console.log('no quadrant found');
         break;
     }
-
+    // arrow head line 1
     ctx.beginPath();
     ctx.moveTo(this.xxx2,this.yyy2);
     ctx.lineTo(this.xxx2+xoff1,this.yyy2+yoff1);
     ctx.stroke();
-
+    // arrow head line 2
     ctx.beginPath();
     ctx.moveTo(this.xxx2,this.yyy2);
     ctx.lineTo(this.xxx2+xoff2,this.yyy2+yoff2);
@@ -143,17 +143,14 @@ function Arrow(cellIndex1, cellIndex2) {
       this.xxx2 = x2 + ( Math.cos(this.tRad ) * (r2) );
       this.yyy2 = y2 + ( Math.sin(this.tRad ) * (r2) );
     } else {
+      console.log("arrow update error");
       console.log("x1 y1 x2 y2: "+x1+" "+y1+" "+x2+" "+y2);
-      console.log("collision");
-      console.log(this);
     } // if
     // console.log('circle: '+this.ind1+' xxx1: '+this.xxx1+' y1: '+this.yyy1+' x2: '+this.xxx2+' y2: '+this.yyy2);
   } // update
-
-
 } // Arrow
 
-function Cell(x,y,r,color) {
+function Cell(x,y,r,color,thickness = 3) {
   this.x = x;
   this.y = y;
   this.r = r;
@@ -164,18 +161,24 @@ function Cell(x,y,r,color) {
   this.yVel = getRandomIntInclusive(1,2)*randSign(); // rand speed and direction
   this.txt = undefined;
   this.arrows = [];
-  this.wallThick = 3;
+  this.thick = thickness;
   // arrow width = cell.internalCoeff * cell.linkCoeff
   // this.internalCoeff = 0;  single number for strength of outgoing signal
 
   this.init = function(index) {
-    // TxtBox(x,y,font,color)
-    this.txt = new TxtBox(this.x-4,this.y-this.r-5,16,myColors.black,index.toString(),index);
-    // make 0 - 1 arrows
-    if ( getRandomIntInclusive(0,1) ) {
+    // make 0 - 3 arrows
+    for ( var j = 0; j < getRandomIntInclusive(0,3); j++ ) {
       var pair = myNet.getRandIndex(index);
       this.arrows.push(new Arrow(pair[0], pair[1]));
     }
+    // make cells thicker and larger the more outgoing connections they have
+    this.r = 10 + (4 * this.arrows.length);
+    this.thick = 1 + this.arrows.length;
+    // calc x and y making sure it's in bounds
+    this.x = getRandomIntInclusive(this.r, canvas.width-this.r);
+    this.y = getRandomIntInclusive(this.r, canvas.height-this.r);
+    // TxtBox(x,y,font,color)
+    this.txt = new TxtBox(this.x-4,this.y-this.r-5,16,myColors.black,index.toString(),index);
   }
 
   this.draw = function() {
@@ -189,7 +192,7 @@ function Cell(x,y,r,color) {
     //    and indicates clockwise, while true indicates counter-clockwise.
     ctx.beginPath();
     ctx.strokeStyle = this.color;
-    ctx.lineWidth = this.wallThick;
+    ctx.lineWidth = this.thick;
     ctx.arc(this.x,this.y,this.r,this.sAngle,this.eAngle);  // ctx.arc(x,y,radius,startAngle,endAngle)
     ctx.stroke();
     // draw all arrows
@@ -216,15 +219,15 @@ function Cell(x,y,r,color) {
 function Net(quantity) {
   this.cells = [];
 
-  this.init = function() {
-    // fill with new cells
+  this.init = function() {  // fill with new cells
     for (var i = 0; i < quantity; i++) {
-      var randRad = getRandomIntInclusive(4, 45);
-      //  Cell(x,y,r,color)
-      var tmpCell = new Cell( getRandomIntInclusive(randRad, canvas.width-randRad), // center x
-                              getRandomIntInclusive(randRad, canvas.height-randRad), // center y
-                              randRad, // radius
-                              randColor('hex') // color
+      // var randRad = getRandomIntInclusive(4, 45);
+      //  Cell(x,y,r,color,thickness)
+      var tmpCell = new Cell( getRandomIntInclusive(20, canvas.width-20), // center x
+                              getRandomIntInclusive(20, canvas.height-20), // center y
+                              10, // radius
+                              randColor('hex'), // color
+                              1,  // thickness
                             );
       this.cells.push(tmpCell);
     } // fill this.cells
