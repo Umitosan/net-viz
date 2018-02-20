@@ -1,0 +1,15 @@
+{
+  "name": "net-viz",
+  "version": "1.0.0",
+  "description": "A visualization tool made with canvas to explore neural net data.  This data will be obtained through an imported XML or JSON file.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start":  "http-server -a localhost -p 1234 -o"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "http-server": "^0.11.1"
+  }
+}

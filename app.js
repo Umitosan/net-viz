@@ -1,4 +1,4 @@
-
+/*jshint esversion: 6 */
 
 var canvas = undefined,
     ctx = undefined, // canvas.getContext('2d')
@@ -23,7 +23,7 @@ var myColors = {
   lightblueAlpha: 'rgba(173,216,230,0.2)',
   yellowAlpha: 'rgba(255,255,0,0.2)',
   greenAlpha: 'rgba(0,128,0,0.2)',
-}
+};
 
 function TxtBox(x,y,fontSize,color,str,cellIndex) {
   // aprox center for cell's txt TxtBox
@@ -38,7 +38,7 @@ function TxtBox(x,y,fontSize,color,str,cellIndex) {
     // black number
     ctx.fillStyle = this.color;
     ctx.fillText(this.str,this.x,this.y);
-  }
+  };
 }
 
 function Arrow(cellIndex1, cellIndex2) {
@@ -61,12 +61,12 @@ function Arrow(cellIndex1, cellIndex2) {
     ctx.lineTo(this.xxx2,this.yyy2);
     ctx.stroke();
     this.drawHead();
-  } // draw
+  }; // draw
 
   // draw the head of the arrow (2 small lines)
   this.drawHead = function() {
     var xoff1,yoff1,xoff2,yoff2;
-    var length = 20
+    var length = 20;
     var x1Angle = Math.cos(this.tRad+Math.PI/10);
     var y1Angle = Math.sin(this.tRad+Math.PI/10);
     var x2Angle = Math.cos(this.tRad-Math.PI/10);
@@ -103,7 +103,7 @@ function Arrow(cellIndex1, cellIndex2) {
     ctx.moveTo(this.xxx2,this.yyy2);
     ctx.lineTo(this.xxx2+xoff2,this.yyy2+yoff2);
     ctx.stroke();
-  }
+  };
 
   this.update = function() {
     var x1 = myNet.cells[this.ind1].x;
@@ -147,7 +147,7 @@ function Arrow(cellIndex1, cellIndex2) {
       console.log("x1 y1 x2 y2: "+x1+" "+y1+" "+x2+" "+y2);
     } // if
     // console.log('circle: '+this.ind1+' xxx1: '+this.xxx1+' y1: '+this.yyy1+' x2: '+this.xxx2+' y2: '+this.yyy2);
-  } // update
+  }; // update
 } // Arrow
 
 function Cell(x,y,r,color,thickness = 3) {
@@ -179,7 +179,7 @@ function Cell(x,y,r,color,thickness = 3) {
     this.y = getRandomIntInclusive(this.r, canvas.height-this.r);
     // TxtBox(x,y,font,color)
     this.txt = new TxtBox(this.x-4,this.y-this.r-5,16,myColors.black,index.toString(),index);
-  }
+  };
 
   this.draw = function() {
     this.arrows.forEach(function(a) {
@@ -197,7 +197,7 @@ function Cell(x,y,r,color,thickness = 3) {
     ctx.stroke();
     // draw all arrows
     this.txt.draw();
-  } // draw
+  }; // draw
 
     this.update = function() {
       // check cell bounds on canvas edges
@@ -213,7 +213,7 @@ function Cell(x,y,r,color,thickness = 3) {
       // update txt txt label
       this.txt.x += this.xVel;
       this.txt.y += this.yVel;
-    } // update
+    }; // update
 } // Cell
 
 function Net(quantity) {
@@ -227,7 +227,7 @@ function Net(quantity) {
                               getRandomIntInclusive(20, canvas.height-20), // center y
                               10, // radius
                               randColor('hex'), // color
-                              1,  // thickness
+                              1  // thickness
                             );
       this.cells.push(tmpCell);
     } // fill this.cells
@@ -235,7 +235,7 @@ function Net(quantity) {
     for (var j = 0; j < this.cells.length; j++) {
       this.cells[j].init(j);
     }
-  } // init
+  }; // init
   // get random cell index to draw an arrow to
   this.getRandIndex = function(cIndex) {
     var ind;
@@ -246,25 +246,25 @@ function Net(quantity) {
       }
     }
     return { 0: cIndex, 1: ind };
-  } // getRandIndex
+  }; // getRandIndex
   this.draw = function() {
     for (var i = 0; i < this.cells.length; i++) {
       this.cells[i].draw();
     }
-  } // draw
+  }; // draw
   this.update = function() {
     // cells first to get locations
     for (var i = 0; i < this.cells.length; i++) {
       this.cells[i].update();
     }
     // arrows musst be updated separately to gather all new cell positions
-    for (var i = 0; i < this.cells.length; i++) {
+    for (var j = 0; j < this.cells.length; j++) {
       // update arrow positions
-      this.cells[i].arrows.forEach(function(a) {
+      this.cells[j].arrows.forEach(function(a) {
         a.update();
       });
     }
-  } // update
+  }; // update
 } // Net
 
 // prepare the loop to start based on current state
@@ -317,7 +317,7 @@ function getRadianAngle(degreeValue) {
 }
 
 function randSign() {
-  var num = getRandomIntInclusive(1,2)
+  var num = getRandomIntInclusive(1,2);
   return (num === 1) ? (1) : (-1);
 }
 
@@ -344,13 +344,15 @@ function clearCanvas() {
 }
 
 
+
 //////////////////////////////////////////////////////////////////////////////////
-// FRONT
+//////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 $(document).ready(function() {
 
   canvas = $('#canvas')[0];
   ctx = canvas.getContext('2d');
+  $("#output-msg").hide();
 
   $('#start').click(function() {
     var cellCount = parseInt($('#cell-count').val());
@@ -377,6 +379,24 @@ $(document).ready(function() {
     console.log('loop reset');
     cancelAnimationFrame(myReq);
     clearCanvas();
+  });
+
+  // $('#file-xml').change(function() {
+  //   var filePath = $('#file-xml')[0].path();
+  //   console.log('file-xml = ', filePath);
+  // });
+
+  $('#submit-btn').click(function() {
+    $("#output-msg").show();
+    var myFile = $('#file-xml')[0].files[0];
+    console.log("file recieved: ", myFile);
+    // $('#output-xml').load("/seeds/"+myFile.name);
+    $.get("/seeds/"+myFile.name, function(str) {
+      console.log("data = ", str);
+      console.log("typeof data = ", typeof str);
+      $('#output-xml').html(str);
+
+    }, 'text');
   });
 
 });

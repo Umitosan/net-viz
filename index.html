@@ -33,12 +33,24 @@
         </div>
       </div>
       <div class="input-group">
-        <div class="input-wrapper">
+        <!-- <div class="input-wrapper">
           <label for="cells">Number of Cells</label>
           <input id="cell-count" type="number" placeholder="2-1000" name="cells" value="" min="0" max="1000">
+        </div> -->
+        <div class="input-wrapper">
+          <label for="myFile">Input file (XML)</label>
+          <input id="file-xml" name="myFile" type="file">
+        </div>
+        <div class="input-wrapper">
+          <button id="submit-btn" type="button" name="sumbit">Submit File</button>
         </div>
       </div>
       <canvas id="canvas" width="600" height="600"></canvas>
+    </div>
+
+    <p id="output-msg" >XML file recieved:</p>
+    <div id="output-xml">
+
     </div>
 
   </body>

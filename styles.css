@@ -88,3 +88,21 @@ h2 {
 #reset:hover {
   background-color: rgb(137, 183, 36);
 }
+
+
+#file-xml {
+}
+
+#submit-btn {
+  margin-top: 5px;
+
+}
+#output-msg {
+  display: none;
+  font-size: 30px;
+  text-align: center;
+}
+#output-xml {
+  font-size: 12px;
+  margin-left: 12%;
+}
