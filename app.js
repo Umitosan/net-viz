@@ -390,13 +390,12 @@ $(document).ready(function() {
     $("#output-msg").show();
     var myFile = $('#file-xml')[0].files[0];
     console.log("file recieved: ", myFile);
-    // $('#output-xml').load("/seeds/"+myFile.name);
-    $.get("/seeds/"+myFile.name, function(str) {
-      console.log("data = ", str);
-      console.log("typeof data = ", typeof str);
-      $('#output-xml').html(str);
-
-    }, 'text');
+    $('#output-xml').load("/seeds/"+myFile.name);
+    $.get("/seeds/"+myFile.name, function(data) {
+      console.log("data = ", data);
+      console.log("typeof data = ", typeof data);
+      $('#output-xml').innerHtml(data);
+    }, 'xml');
   });
 
 });
